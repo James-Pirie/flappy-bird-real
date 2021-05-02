@@ -13,19 +13,27 @@ class Bird:
         self.velocity = 0
         for x in range(7):
             self.canvas.after(2)
-            self.velocity -= 5
+            self.velocity -= 1.8
             self.canvas.move(self.player_object, 0, self.velocity)
         self.canvas.update()
 
+    def collide_with_ground(self):
+        if self.canvas.coords(self.player_object)[3] > 800:
+            self.velocity = 0
+
     def gravity(self):
-        terminal_velocity = 25
+        terminal_velocity = 30
         if self.velocity > terminal_velocity:
             self.velocity = terminal_velocity
         self.canvas.move(self.player_object, 0, self.velocity)
 
     def compile_movement(self):
+        self.collide_with_ground()
         self.window.bind("<space>", self.jump)
         self.gravity()
+
+
+class Pipe:
 
 
 def main():

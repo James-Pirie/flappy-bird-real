@@ -61,11 +61,12 @@ def main():
     pipe = Pipe(canvas=canvas, window=window,
                 bird=bird)
     pipe.spawn()
+    pipe.move_pipe()
     while True:
         canvas.after(1)
         bird.velocity += 0.8
         bird.compile_movement()
-        pipe.move_pipe()
+
         canvas.update()
 
 

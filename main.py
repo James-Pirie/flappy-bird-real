@@ -1,4 +1,5 @@
 from tkinter import *
+import random
 
 
 class Bird:
@@ -34,6 +35,22 @@ class Bird:
 
 
 class Pipe:
+    def __init__(self, canvas, window, bird):
+        self.canvas = canvas
+        self.window = window
+        self.player = bird
+        self.pipe_object_top = None
+        self.pipe_object_bottom = None
+
+    def spawn(self):
+        self.pipe_object_top = self.canvas.create_rectangle(700, 810, 770, 500,
+                                                            fill="green2")
+        self.pipe_object_bottom = self.canvas.create_rectangle(700, 270, 770, 0,
+                                                               fill="green2")
+
+    def move_pipe(self):
+        self.canvas.move(self.pipe_object_bottom, -2, 0)
+        self.canvas.move(self.pipe_object_top, -2, 0)
 
 
 def main():
@@ -41,10 +58,14 @@ def main():
     canvas = Canvas(window, width="800", height="800", background="sky blue")
     canvas.pack()
     bird = Bird(canvas=canvas, window=window)
+    pipe = Pipe(canvas=canvas, window=window,
+                bird=bird)
+    pipe.spawn()
     while True:
         canvas.after(1)
         bird.velocity += 0.8
         bird.compile_movement()
+        pipe.move_pipe()
         canvas.update()
 
 

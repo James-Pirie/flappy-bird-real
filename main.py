@@ -5,9 +5,8 @@ import random
 class Bird:
     def __init__(self, canvas, window):
         self.canvas = canvas
-        self.player_object = self.canvas.create_rectangle(200, 0, 270,
-                                                          70,
-                                                           fill="gold2")
+        self.player_object = \
+            self.canvas.create_rectangle(200, 0, 270, 70, fill="gold2")
         self.velocity = 0
         self.window = window
 
@@ -38,8 +37,8 @@ class Bird:
 class Pipe:
     def __init__(self, canvas, window, list_of_pipes, bird):
         self.canvas = canvas
-        self.pipe_object_top = None
         self.pipe_object_bottom = None
+        self.pipe_object_top = None
         self.window = window
         self.list_of_pipes = list_of_pipes
         self.player = bird
@@ -47,29 +46,33 @@ class Pipe:
     def spawn(self):
         self.list_of_pipes.append(self)
         x_location = random.randint(275, 750)
-        self.pipe_object_top = \
-            self.canvas.create_rectangle(810, x_location, 880, 900,
-                                         fill="green2")
-
         self.pipe_object_bottom = \
-            self.canvas.create_rectangle(810, x_location - 270, 880, 0,
-                                         fill="green2")
+            self.canvas.create_rectangle(810, x_location, 880,
+                                         900, fill="green2")
+
+        self.pipe_object_top = \
+            self.canvas.create_rectangle(810, x_location - 270,
+                                         880, 0, fill="green2")
 
     def move_pipe(self):
-        self.canvas.move(self.pipe_object_bottom, -2, 0)
         self.canvas.move(self.pipe_object_top, -2, 0)
+        self.canvas.move(self.pipe_object_bottom, -2, 0)
 
     def destroy_pipe(self):
-        if self.canvas.coords(self.pipe_object_top)[2] < -44:
-            self.canvas.delete(self.pipe_object_bottom,
-                               self.pipe_object_top)
+        if self.canvas.coords(self.pipe_object_bottom)[2] < -44:
+            self.canvas.delete(self.pipe_object_top,
+                               self.pipe_object_bottom)
             self.list_of_pipes.pop(0)
             return True
         else:
             return False
 
     def collision(self):
-        pass
+        player_coords = self.canvas.coords(self.player.player_object)
+        bottom_pipe_coords = self.canvas.coords(self.pipe_object_bottom)
+        if player_coords[2] == bottom_pipe_coords[0] and \
+                player_coords[3] < bottom_pipe_coords[1]:
+            print("Collision")
 
 
 def main():
@@ -90,12 +93,13 @@ def main():
             new_pipe.spawn()
             pipe_counter = 0
         for i in range(len(list_of_pipes)):
+            list_of_pipes[i].collision()
             list_of_pipes[i].move_pipe()
             if list_of_pipes[i].destroy_pipe():
                 pipe_hit_list.append(list_of_pipes[i])
-                break  # not socially acceptable
+                break  # wildly inappropriate
 
-        canvas.after(1)
+        canvas.after(7)
         player.velocity += 0.8
         player.compile_movement()
         canvas.update()

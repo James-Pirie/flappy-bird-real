@@ -70,9 +70,15 @@ class Pipe:
     def collision(self):
         player_coords = self.canvas.coords(self.player.player_object)
         bottom_pipe_coords = self.canvas.coords(self.pipe_object_bottom)
-        if player_coords[2] == bottom_pipe_coords[0] and \
-                player_coords[3] < bottom_pipe_coords[1]:
-            print("Collision")
+        top_pipe_coords = self.canvas.coords(self.pipe_object_top)
+        if player_coords[2] >= bottom_pipe_coords[0] and \
+                player_coords[3] > bottom_pipe_coords[1] and \
+                player_coords[0] < bottom_pipe_coords[2]:
+            print("Collision bottom")
+        if player_coords[2] > top_pipe_coords[0] and \
+                player_coords[1] < top_pipe_coords[3] and \
+                player_coords[0] < top_pipe_coords[2]:
+            print("Collision top")
 
 
 def main():

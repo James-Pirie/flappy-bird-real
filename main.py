@@ -74,11 +74,32 @@ class Pipe:
         if player_coords[2] >= bottom_pipe_coords[0] and \
                 player_coords[3] > bottom_pipe_coords[1] and \
                 player_coords[0] < bottom_pipe_coords[2]:
-            print("Collision bottom")
+            return True
         if player_coords[2] > top_pipe_coords[0] and \
                 player_coords[1] < top_pipe_coords[3] and \
                 player_coords[0] < top_pipe_coords[2]:
-            print("Collision top")
+            return True
+        else:
+            return False
+
+
+class Score:
+    def __init__(self, score, canvas, bird, pipes):
+        self.score = score
+        self.canvas = canvas
+        self.bird = bird
+        self.pipe = pipes
+        self.text = self.canvas.create_text(400, 60,
+                                            fill="white",
+                                            font="Times 100",
+                                            text=f"{self.score}")
+
+    def update(self):
+        if self.canvas.coords(self.bird.player_object)[0] == \
+                self.canvas.coords(self.pipe[0].pipe_object_top)[2]:
+            self.score += 1
+            self.canvas.itemconfigure(self.text,
+                                      text=f"{self.score}")
 
 
 def main():
@@ -90,14 +111,21 @@ def main():
     pipe_hit_list = []
     player = Bird(canvas=canvas, window=window)
     pipe_counter = 0
-
+    score_value = 0
+    score = Score(score=score_value, canvas=canvas,
+                  bird=player, pipes=list_of_pipes)
     while True:
+        if len(list_of_pipes) > 0:
+            score.update()
+        # ==================== pipes ====================
+
         pipe_counter += 1
         if pipe_counter == 200:
-            new_pipe = Pipe(canvas=canvas, window=window,
-                            list_of_pipes=list_of_pipes, bird=player)
+            new_pipe = Pipe(canvas=canvas, window=window, bird=player,
+                            list_of_pipes=list_of_pipes)
             new_pipe.spawn()
             pipe_counter = 0
+            canvas.tag_raise(score.text)
         for i in range(len(list_of_pipes)):
             list_of_pipes[i].collision()
             list_of_pipes[i].move_pipe()
@@ -105,9 +133,14 @@ def main():
                 pipe_hit_list.append(list_of_pipes[i])
                 break  # wildly inappropriate
 
-        canvas.after(7)
+        # ==================== player ====================
+
         player.velocity += 0.8
         player.compile_movement()
+
+        # ==================== general ====================
+
+        canvas.after(7)
         canvas.update()
 
 

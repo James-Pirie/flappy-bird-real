@@ -102,19 +102,19 @@ class Score:
                                       text=f"{self.score}")
 
 
-def main():
-    window = Tk()
+def game(window):
     canvas = Canvas(window, width="800", height="800",
                     background="sky blue")
     canvas.pack()
     list_of_pipes = []
-    pipe_hit_list = []
     player = Bird(canvas=canvas, window=window)
     pipe_counter = 0
     score_value = 0
     score = Score(score=score_value, canvas=canvas,
                   bird=player, pipes=list_of_pipes)
-    while True:
+    game_over = False
+
+    while not game_over:
         if len(list_of_pipes) > 0:
             score.update()
         # ==================== pipes ====================
@@ -127,10 +127,10 @@ def main():
             pipe_counter = 0
             canvas.tag_raise(score.text)
         for i in range(len(list_of_pipes)):
-            list_of_pipes[i].collision()
+            if len(list_of_pipes) > 0 and list_of_pipes[i].collision():
+                game_over = True
             list_of_pipes[i].move_pipe()
             if list_of_pipes[i].destroy_pipe():
-                pipe_hit_list.append(list_of_pipes[i])
                 break  # wildly inappropriate
 
         # ==================== player ====================
@@ -142,6 +142,17 @@ def main():
 
         canvas.after(7)
         canvas.update()
+    canvas.destroy()
+
+
+def main():
+    window = Tk()
+
+    game(window=window)
+    btn = Button(window, text='restart', bd='5',
+                 command=lambda: game(window=window))
+    btn.pack()
+    window.mainloop()
 
 
 if __name__ == '__main__':

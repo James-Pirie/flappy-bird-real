@@ -3,6 +3,7 @@ import random
 
 
 class Bird:
+    """The player class"""
     def __init__(self, canvas, window):
         self.canvas = canvas
         self.player_object = \
@@ -102,57 +103,91 @@ class Score:
                                       text=f"{self.score}")
 
 
-def game(window):
-    canvas = Canvas(window, width="800", height="800",
-                    background="sky blue")
-    canvas.pack()
-    list_of_pipes = []
-    player = Bird(canvas=canvas, window=window)
-    pipe_counter = 0
-    score_value = 0
-    score = Score(score=score_value, canvas=canvas,
-                  bird=player, pipes=list_of_pipes)
-    game_over = False
+class Game:
+    def __init__(self, window):
+        self.window = window
+        self.canvas = None
+        self.list_of_pipes = []
+        self.player = None
+        self.pipe_counter = 0
+        self.score_value = 0
+        self.game_over = False
+        self.score = None
 
-    while not game_over:
-        if len(list_of_pipes) > 0:
-            score.update()
-        # ==================== pipes ====================
+    def create_canvas(self):
+        self.canvas = Canvas(self.window, width="800", height="800",
+                             background="sky blue")
+        self.canvas.pack()
 
-        pipe_counter += 1
-        if pipe_counter == 200:
-            new_pipe = Pipe(canvas=canvas, window=window, bird=player,
-                            list_of_pipes=list_of_pipes)
+    def create_player(self):
+        self.player = Bird(canvas=self.canvas, window=self.window)
+
+    def create_score(self):
+        self.score = Score(score=self.score_value, canvas=self.canvas,
+                           bird=self.player, pipes=self.list_of_pipes)
+
+    def initialize_pipes(self):
+        self.pipe_counter += 1
+        if self.pipe_counter == 200:
+            new_pipe = Pipe(canvas=self.canvas, window=self.window,
+                            bird=self.player,
+                            list_of_pipes=self.list_of_pipes)
             new_pipe.spawn()
-            pipe_counter = 0
-            canvas.tag_raise(score.text)
-        for i in range(len(list_of_pipes)):
-            if len(list_of_pipes) > 0 and list_of_pipes[i].collision():
-                game_over = True
-            list_of_pipes[i].move_pipe()
-            if list_of_pipes[i].destroy_pipe():
+            self.pipe_counter = 0
+            self.canvas.tag_raise(self.score.text)
+        for i in range(len(self.list_of_pipes)):
+            if len(self.list_of_pipes) > 0 and self.list_of_pipes[i].collision():
+                self.game_over = True
+            self.list_of_pipes[i].move_pipe()
+            if self.list_of_pipes[i].destroy_pipe():
                 break  # wildly inappropriate
 
-        # ==================== player ====================
+    def initialize_player(self):
+        self.player.velocity += 0.8
+        self.player.compile_movement()
 
-        player.velocity += 0.8
-        player.compile_movement()
+    def initialize_game(self):
+        self.create_canvas()
+        self.create_player()
+        self.create_score()
+        while not self.game_over:
+            if len(self.list_of_pipes) > 0:
+                self.score.update()
+            self.initialize_pipes()
+            self.initialize_player()
+            self.canvas.after(7)
+            self.canvas.update()
+        self.canvas.delete(all)
+        self.canvas.destroy()
 
-        # ==================== general ====================
 
-        canvas.after(7)
-        canvas.update()
-    canvas.destroy()
+class Menu:
+    def __init__(self):
+        self.window = None
+        self.new_game = None
+        self.restart_button = None
+
+    def create_window(self):
+        self.window = Tk()
+        self.window.geometry("800x800")
+
+    def start_new_game(self):
+        self.restart_button.pack_forget()
+        self.new_game = Game(window=self.window)
+        self.new_game.initialize_game()
+        self.restart_button.pack()
+
+    def create_buttons(self):
+        self.restart_button = Button(self.window, text='restart', bd='5'
+                                     , command=self.start_new_game)
+        self.restart_button.pack()
 
 
 def main():
-    window = Tk()
-
-    game(window=window)
-    btn = Button(window, text='restart', bd='5',
-                 command=lambda: game(window=window))
-    btn.pack()
-    window.mainloop()
+    program = Menu()
+    program.create_window()
+    program.create_buttons()
+    program.window.mainloop()
 
 
 if __name__ == '__main__':

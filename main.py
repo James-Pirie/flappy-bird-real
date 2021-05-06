@@ -3,7 +3,6 @@ import random
 
 """ 
 To do
-1) High Score
 3) Make menu look good
 3) Tidy up code, fix that break bs
 4) Port to window
@@ -95,22 +94,22 @@ class Pipe:
 
 
 class Score:
-    def __init__(self, score, canvas, bird, pipes):
-        self.score = score
+    def __init__(self, score_value, canvas, bird, pipes):
+        self.score_value = score_value
         self.canvas = canvas
         self.bird = bird
         self.pipe = pipes
         self.text = self.canvas.create_text(400, 60,
                                             fill="white",
                                             font="Times 100",
-                                            text=f"{self.score}")
+                                            text=f"{self.score_value}")
 
     def update(self):
         if self.canvas.coords(self.bird.player_object)[0] == \
                 self.canvas.coords(self.pipe[0].pipe_object_top)[2]:
-            self.score += 1
+            self.score_value += 1
             self.canvas.itemconfigure(self.text,
-                                      text=f"{self.score}")
+                                      text=f"{self.score_value}")
 
 
 class Game:
@@ -133,7 +132,7 @@ class Game:
         self.player = Bird(canvas=self.canvas, window=self.window, game_over=self.game_over)
 
     def create_score(self):
-        self.score = Score(score=self.score_value, canvas=self.canvas,
+        self.score = Score(score_value=self.score_value, canvas=self.canvas,
                            bird=self.player, pipes=self.list_of_pipes)
 
     def initialize_pipes(self):
@@ -159,14 +158,6 @@ class Game:
         self.player.velocity += 0.8
         self.player.compile_movement()
 
-    def high_score(self):
-        high_score_file = open("high_score.txt", "w+")
-        high_score_int = int(high_score_file.read())
-        if self.score > high_score_int:
-            high_score_file.truncate(0)
-            high_score_file.write(f"{self.score}")
-        high_score_file.close()
-
     def initialize_game(self):
         self.create_canvas()
         self.create_player()
@@ -188,7 +179,6 @@ class Menu:
         self.new_game = None
         self.restart_button = None
         self.exit_button = None
-        self.high_score_text = None
 
     def create_window(self):
         self.window = Tk()

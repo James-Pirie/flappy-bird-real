@@ -1,15 +1,25 @@
 from tkinter import *
 import random
 
+""" 
+To do
+1) High Score
+3) Make menu look good
+3) Tidy up code, fix that break bs
+4) Port to window
+5) Public and Private variables
+"""
+
 
 class Bird:
     """The player class"""
-    def __init__(self, canvas, window):
+    def __init__(self, canvas, window, game_over):
         self.canvas = canvas
         self.player_object = \
             self.canvas.create_rectangle(200, 0, 270, 70, fill="gold2")
         self.velocity = 0
         self.window = window
+        self.game_over = game_over
 
     def jump(self, event):
         self.velocity = 0
@@ -21,10 +31,10 @@ class Bird:
 
     def collide_with_ground(self):
         if self.canvas.coords(self.player_object)[3] > 800:
-            self.velocity = 0
+            return True
 
     def gravity(self):
-        self.collide_with_ground()
+
         terminal_velocity = 30
         if self.velocity > terminal_velocity:
             self.velocity = terminal_velocity
@@ -76,7 +86,7 @@ class Pipe:
                 player_coords[3] > bottom_pipe_coords[1] and \
                 player_coords[0] < bottom_pipe_coords[2]:
             return True
-        if player_coords[2] > top_pipe_coords[0] and \
+        elif player_coords[2] > top_pipe_coords[0] and \
                 player_coords[1] < top_pipe_coords[3] and \
                 player_coords[0] < top_pipe_coords[2]:
             return True
@@ -120,7 +130,7 @@ class Game:
         self.canvas.pack()
 
     def create_player(self):
-        self.player = Bird(canvas=self.canvas, window=self.window)
+        self.player = Bird(canvas=self.canvas, window=self.window, game_over=self.game_over)
 
     def create_score(self):
         self.score = Score(score=self.score_value, canvas=self.canvas,
@@ -136,15 +146,26 @@ class Game:
             self.pipe_counter = 0
             self.canvas.tag_raise(self.score.text)
         for i in range(len(self.list_of_pipes)):
-            if len(self.list_of_pipes) > 0 and self.list_of_pipes[i].collision():
+            if len(self.list_of_pipes) > 0 and \
+                    self.list_of_pipes[i].collision():
                 self.game_over = True
             self.list_of_pipes[i].move_pipe()
             if self.list_of_pipes[i].destroy_pipe():
                 break  # wildly inappropriate
 
     def initialize_player(self):
+        if self.player.collide_with_ground():
+            self.game_over = True
         self.player.velocity += 0.8
         self.player.compile_movement()
+
+    def high_score(self):
+        high_score_file = open("high_score.txt", "w+")
+        high_score_int = int(high_score_file.read())
+        if self.score > high_score_int:
+            high_score_file.truncate(0)
+            high_score_file.write(f"{self.score}")
+        high_score_file.close()
 
     def initialize_game(self):
         self.create_canvas()
@@ -166,6 +187,8 @@ class Menu:
         self.window = None
         self.new_game = None
         self.restart_button = None
+        self.exit_button = None
+        self.high_score_text = None
 
     def create_window(self):
         self.window = Tk()
@@ -173,20 +196,26 @@ class Menu:
 
     def start_new_game(self):
         self.restart_button.pack_forget()
+        self.exit_button.pack_forget()
         self.new_game = Game(window=self.window)
         self.new_game.initialize_game()
         self.restart_button.pack()
+        self.exit_button.pack()
 
-    def create_buttons(self):
-        self.restart_button = Button(self.window, text='restart', bd='5'
-                                     , command=self.start_new_game)
+    def render_menu(self):
+        self.restart_button = Button(self.window, text="Play",
+                                     height=3, width=10,
+                                     command=self.start_new_game)
+        self.exit_button = Button(self.window, text="Exit", height=3,
+                                  width=10, command=self.window.destroy)
         self.restart_button.pack()
+        self.exit_button.pack()
 
 
 def main():
     program = Menu()
     program.create_window()
-    program.create_buttons()
+    program.render_menu()
     program.window.mainloop()
 
 
